@@ -6,21 +6,21 @@ import back.controller.FrontController;
 
 public class FrontEnd {
 	
-	//필드
+	//필드생성
 	private FrontController fc;
 	
 	//생성자 호출
 	public FrontEnd() {
 		
-		//
+		//할당
 		fc = new FrontController();
 		
-		this.viewControl(this.makeTitle());		
-	}
+		this.viewControl( this.makeTitle() );		
+	} 
 		
 	
 	
-	private void viewControl(String title) {
+	private void viewControl( String title ) {
 		
 		int menuCode = 0;
 		
@@ -29,10 +29,10 @@ public class FrontEnd {
 						   {"Join", "Personal", "Company", "Back"}};
 
 		while(true) {
-			this.print(title);
-			this.print(this.printMenu(true, menu, menuCode));
+			this.print( title );
+			this.print( this.printMenu( true, menu, menuCode ) );
 
-			menuCode = Integer.parseInt(this.clientInput());
+			menuCode = Integer.parseInt( this.clientInput() );
 
 			if(menuCode == 0) {
 				break;
@@ -57,23 +57,22 @@ public class FrontEnd {
 	
 	private void join(String title, String[][] menu, int menuCode) {
 		
-		String[] userInfo = new String[4];
+		String[] userInfo = new String[5];
+		String[] joinInfo = new String[5];
 		boolean idCheck = false;
+		boolean menuCheck = true;
 		int code;
 		
-		this.print(title);
+		this.print( title );
+		
 		while(!idCheck) {
-			this.print(this.makeInputItem(true, "Join", "USER ID" ));
+			this.print( this.makeInputItem ( menuCheck, "Join", "USER ID" ) );
 			userInfo[0] = this.clientInput();
+			
 			//서버전송: id 중복여부체크
-			idCheck = (fc.duplicated(userInfo)[0].equals("0"))? false: true;
-			while(!idCheck) {
-				this.print(this.makeInputItem(false, "Join", "USER ID" ));
-				userInfo[0] = this.clientInput();
-				//서버전송: id 중복여부체크
-				idCheck = (fc.duplicated(userInfo)[0].equals("0"))? false: true;
-				
-			}
+			idCheck = ( ( fc.duplicated (userInfo) [0]  ) . equals("0") ) ? false : true;
+		
+			menuCheck = false;
 		}
 		
 		this.print(this.makeInputItem(false, null, "USER NAME"));
@@ -82,23 +81,45 @@ public class FrontEnd {
 		this.print(this.makeInputItem(false, null, "USER PW"));
 		userInfo[2] = this.clientInput();
 		
+		this.print(this.makeInputItem(false,  null, "USER AGE"));
+		userInfo[3] = this.clientInput();
+		
 		this.print(this.printMenu(false, menu, menuCode));
+		//
 		code = Integer.parseInt(this.clientInput());
 		if(code >= 1 && code <= menu[menuCode].length-2) {
-			userInfo[3] = (code==1? "P": "C"); 
+			userInfo[4] = (code==1? "P": "C"); 
 		}
 		
 		//서버전송
 		//서버로부터  가입된 회원정보를 리턴받아 화면출력
+		joinInfo = fc.joinMember(userInfo);
+		
 		//사용자로부터 confirm 후 메인화면 복귀
+		this.print(title);
+		
+		this.print(this.makeInputItem(true, "JOIN Successful", "USER ID"));
+		this.print(joinInfo[0] + "\n");
+		
+		
+		this.print(this.makeInputItem(false, null, "USER NAME"));
+		this.print(joinInfo[1] + "\n");
+		this.print(this.makeInputItem(false, null, "USER PASSWORD"));
+		this.print(joinInfo[2] + "\n");
+		this.print(this.makeInputItem(false, null, "USER AGE"));
+		this.print(joinInfo[3] + "\n");
+		this.print(this.makeInputItem(false, null, "USER TYPE"));
+		this.print(joinInfo[4] + "\n");
+		this.print(this.makeResult(true, "PRESS ANY KEY"));
+		this.clientInput();
 	}
 	
 
 	private String makeInputItem(boolean type, String step, String item) {
 		StringBuffer sb = new StringBuffer();
 			
-			sb.append(type? "[" + step + "]\n": "");
-			sb.append(type? "-------------------------------------------------------\n": "");
+			sb.append( type ? "[" + step + "]\n" : "");
+			sb.append( type ? "-------------------------------------------------------\n": "");
 			sb.append("[" + item + "]: ");
 			
 			return sb.toString();
@@ -133,12 +154,15 @@ public class FrontEnd {
 		
 	
 		
-		if(menu[menuCode].length > 1) {
+		if(menu[0].length > 1) {
 			sb.append("-------------------------------------------------------\n");
-			for(int index=1; index < menu[menuCode].length-1; index++) {
-				sb.append("  " +index + ". " + menu[menuCode][index] + ((index%2 == 0)? "\n": "   "));
-			}
-			sb.append("  " + "0. " + menu[menuCode][menu[menuCode].length-1] + "\n");
+			for( int index = 1 ; index < menu[menuCode].length-1; index++) {
+				
+				sb.append("  " +index + ". " + menu[menuCode][index] + ( ( index%2 == 0 ) ? "\n": "   ") );
+			}//					  1      .                               
+			
+			sb.append("  " + "0. " + menu[menuCode][ menu[menuCode].length-1 ] + "\n");
+									
 			sb.append("------------------------------------------------------- Select : ");
 		}
 		
@@ -155,5 +179,7 @@ public class FrontEnd {
 	private void print(String text) {
 		System.out.print(text);
 	}
+	
+	
 	
 }

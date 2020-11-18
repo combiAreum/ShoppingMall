@@ -1,32 +1,92 @@
 package back.controller;
 
-public class FrontController {
-	
-	private String[][] members = {{"a", "아름","1234","P"},
-								  {"b", "원빈","1234","P"},
-								  {"c", "혜지","1234","P"},
-								  {"d", "민성","1234","P"},
-								  {"e", "선아","1234","P"}};
+import back.bean.MemberBean;
+import back.services.*;
 
+public class FrontController {
+	//필드만들고 한번만 하자 메소드마다 뉴 하지말구
+	private Authentication auth;
+	private Goods goods;
+	private GoodsManagement management;
+	private Purchase purchase;
+	
 	public FrontController() {
-		
+		auth = new Authentication();
+		goods = new Goods();
+		management = new GoodsManagement();
+		purchase = new Purchase();
 	}
 	
-	public String[] duplicated(String[] memberInfo) {
+	/**아이디 중복체크
+	 * @name	public duplicateId
+	 * @param	String[] userInfo
+	 * @return	String[] idCheck
+	 * @serviceCode 1
+	 * @reference Authentication
+	 **/
+	
+	public String[] duplicated(String[] userInfo) {
 		String[] idCheck = new String[1];
+		MemberBean member = new MemberBean();
 		
-		// "1" = 사용가능(초기값)
-		idCheck[0] = "1";
+		//클라이언트 요청처리를 위한 데이터 이동: DTO: array --> bean
+		member.setMemberId(userInfo[0]);
+		auth.backController(1, member);
 		
-		//id추출해서 데이터베이스에 있는 id와 비교
-		for(int index = 0; index < members.length; index++) {
-			if(memberInfo[0].equals(members[index][0])) {
-				
-				// "0" = 사용불가능(id중복됨)
-				idCheck[0] = "0";
-				break;
-			}
-		}
+		
+		//클라이언트에 응답하기 위해 데이터 이동: DTO: bran --> array
+		idCheck[0] = member.isDuplicateCheck() ? "1" : "0";
+		
 		return idCheck;
 	}
+
+	/** 회원가입 
+	 * @name	public joinMember
+	 * @param	String[] userInfo
+	 * @return	String[] memberInfo
+	 * @serviceCode 2
+	 * @reference Authentication
+	 **/
+	
+	public String[] joinMember(String[] userInfo) {
+		String[] memberInfo = new String[5];
+		
+		MemberBean member = new MemberBean();
+		
+		//클라이언트 요청 처리를 위한 데이터 이동: DTO: array --> bean
+		member.setMemberId( userInfo[0] );
+		member.setMemberName(userInfo[1]);
+		member.setMemberPW(userInfo[2]);
+		member.setMemberAge( Integer.parseInt( userInfo[3] ) );
+		member.setMemberType(userInfo[4]);
+		
+		auth.backController(2, member);
+		//클라이언트에 응답하기 위해 데이터 이동: DTO: bean --> array
+		memberInfo[0] = member.getMemberId();
+		memberInfo[1] = member.getMemberName();
+		memberInfo[2] = member.getMemberPW();
+		memberInfo[3] = member.getMemberAge() + "";
+		memberInfo[4] = member.getMemberType();
+		
+		return memberInfo;
+	}
+	
+	
+	
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
