@@ -20,15 +20,29 @@ public class FrontEnd {
 		String[][] menu = {	{"MAIN", "LogIn", "Join", "Close"},
 							{"LOGIN"},
 							{"JOIN", "Personal", "Company", "Back"}};
-				
+		
+		String[] accessInfo = null;
+		
 		while(true) {
 			this.display(title);
+			this.display(accessInfo != null? "[ " + accessInfo[0] + "(" + accessInfo[1] + ":" + accessInfo[2] + ")" + " ]": "");
 			this.display(this.makeMenu(true, menu, menuCode));			
 			menuCode = Integer.parseInt(this.userInput());
+			
 			if(menuCode == 0) {	
 				break;
-			} else if(menuCode == 1) {	
-				this.login(title);
+			} 
+			else if(menuCode == 1) {
+				if(accessInfo == null) {
+					accessInfo = this.login(title);
+			}else {
+					accessInfo = this.login(accessInfo);
+					menu[0][1] = "LogIn";
+				}
+				if(accessInfo != null) {
+					menu[0][1] = "LogOut";
+				}
+							
 				menuCode = 0;
 			} else if(menuCode == 2) {	
 				this.join(title, menu, menuCode);
@@ -38,9 +52,37 @@ public class FrontEnd {
 		}
 	}
 	
-	private void login(String title) {
-		this.display(title);
-		this.display("로그인");
+	// 오버로딩
+	private String[] login(String[] accessInfo) {
+		return fc.accessOut(accessInfo);
+	}
+	
+	
+	
+	private String[] login(String title) {
+		String[] accessInfo = new String[2];
+		boolean check = true;
+		
+		while(check) {
+			this.display(title);
+			this.display(this.makeInputItem(true, "ACCESS", "USER ID"));
+			accessInfo[0] = this.userInput();
+			this.display(this.makeInputItem(false, "", "USER PASSWORD"));
+			accessInfo[1] = this.userInput();
+			this.display(this.makeResult(true, "CONFIRM(y/n)"));
+			if(this.userInput().equals("y")) {
+				check = false;
+			}else {
+				accessInfo[0] = "";
+				accessInfo[1] = "";
+			}
+		}
+		
+		// 서버전송
+		accessInfo = fc.memberAccess(accessInfo);
+		// 로그인 성공시 (accessInfo != null)
+		
+		return accessInfo;
 	}
 	
 	private void join(String title, String[][] menu, int menuCode) {
@@ -91,7 +133,7 @@ public class FrontEnd {
 		this.display(this.makeInputItem(menuCheck, null, "USER AGE"));
 		this.display(joinInfo[3] + "\n");
 		this.display(this.makeInputItem(menuCheck, null, "USER TYPE"));
-		this.display(joinInfo[4] + "\n");
+		this.display((joinInfo[4].equals("P")? "개인" : "판매자") + "\n");
 		
 		this.display(this.makeResult(true, "PRESS ANY KEY"));
 		this.userInput();

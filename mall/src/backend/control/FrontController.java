@@ -1,5 +1,7 @@
 package backend.control;
 
+import java.util.ArrayList;
+
 import backend.bean.MemberBean;
 import backend.services.*;
 
@@ -65,7 +67,66 @@ public class FrontController {
 		memberInfo[4] = member.getMemberType();
 		
 		return memberInfo;
-	}	
+	}
+	
+	public String[][] searchMembersInfo(String[] memberType) {
+		
+		ArrayList<MemberBean> list;
+		
+		// arr --> bean
+		MemberBean member = new MemberBean();
+		member.setMemberType(memberType[0]);
+		list = auth.backController(3, member);
+		
+		//list --> arr[][]
+		String[][] memberList = new String[list.size()][5];
+		for(int index=0; index<list.size(); index++) {
+			memberList[index][0] = list.get(index).getMemberId();
+			memberList[index][1] = list.get(index).getMemberName();
+			memberList[index][2] = list.get(index).getMemberPassword();
+			memberList[index][3] = list.get(index).getMemberAge() + "";
+			memberList[index][4] = list.get(index).getMemberType().equals("P")? "개인" : "판매자";
+		}
+		return memberList;
+	}
+	
+	public String[] memberAccess(String[] accessInfo) {
+		
+		String[] memberInfo = null;
+		MemberBean member =new MemberBean();  //arr-->Bean
+		
+		// 1. Array --> Bean  :: MemberBean
+		member.setMemberId(accessInfo[0]);
+		member.setMemberPassword(accessInfo[1]);
+		
+		// 2. Service Call :: serviceCode = "A"
+		member = auth.backController("A", member);
+		
+		// 3. Bean --> Array
+		if(member!= null) {
+		memberInfo = new String[3];
+		memberInfo[0] = member.getMemberId();
+		memberInfo[1] = member.getMemberName();
+		memberInfo[2] = ( member.getMemberType().equals("P"))? "Personal": "Company";
+		}
+		return memberInfo;
+	}
+	
+	public String[] accessOut(String[] memberInfo) {
+		
+		// array ==> Bean	
+		MemberBean member = null;
+		
+		if(memberInfo != null) {
+			member = new MemberBean();
+			member.setMemberId(memberInfo[0]);
+		}
+		auth.backController(-1, member);
+		
+		return null;
+	}
+	
+	
 }
 
 
