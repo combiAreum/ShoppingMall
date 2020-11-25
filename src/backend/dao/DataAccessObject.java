@@ -9,9 +9,14 @@ import java.io.FileWriter;
 public class DataAccessObject {
 	protected String filePath;
 	protected String[] fileList = 
-		{"Member.txt", "Goods.txt", "SaleGoods.txt", 
-				"Recent.txt","ShoppingBasket.txt", 
-				"Purchase.txt", "PurchaseDetail.txt", "History.txt"};
+		{"Member.txt",		//0
+		 "Goods.txt",		//1
+		 "SaleGoods.txt", 	//2
+		"Recent.txt",		//3
+		"ShoppingBasket.txt", //4
+			"Purchase.txt",	//5
+			"PurchaseDetail.txt",	//6
+			"History.txt"};	//7
 	protected File file;
 	protected FileReader fReader;
 	protected FileWriter fWriter;

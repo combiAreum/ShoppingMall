@@ -1,7 +1,10 @@
 package view;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
+import backend.bean.GoodsBean;
 import backend.control.FrontController;
 
 public class FrontEnd {
@@ -17,7 +20,7 @@ public class FrontEnd {
 	private void viewControl(String title) {
 		int menuCode = 0;
 		
-		String[][] menu = {	{"MAIN", "LogIn", "Join", "Close"},
+		String[][] menu = {	{"MAIN", "LogIn", "Join", "Search", "Close"},
 							{"LOGIN"},
 							{"JOIN", "Personal", "Company", "Back"}};
 		String[] accessInfo = null;
@@ -45,10 +48,59 @@ public class FrontEnd {
 			} else if(menuCode == 2) {	
 				this.join(title, menu, menuCode); 
 				menuCode = 0;
+			} else if(menuCode == 3) {
+				this.searchGoods(title);
 			}
 			
 		}
 	}
+	
+	// Map Collection : frontend  <--> frontcontoller 
+	// --> key, value       "name" "hoon"
+	// --> HashMap : 검색속도 빠르다.
+	// --> HashTable
+	// --> TreeMap
+	//9
+	private void searchGoods(String title) {
+//		HashMap<String, String> map = new HashMap<String, String>();
+//							
+//		this.display(title);
+//		this.display(this.makeInputItem(true, "GoodsSearch", "Word"));
+//		map.put("Word", this.userInput());
+//				
+//		fc.searchGoods(map);
+//		
+		HashMap<String, String> map = new HashMap<String, String>();
+		ArrayList<GoodsBean> gList;
+		this.display(title);
+		this.display(this.makeInputItem(true, "GoodsSearch", "Word"));
+		map.put("Word", this.userInput());
+				
+		gList = fc.searchGoods(map);
+		
+		this.display("\n     "+gList.size()+"개의 결과를 찾았습니다.\n");
+		this.display("     ------------------------------------------------------------------------------\n");
+		this.display("     "+String.format("|%4s|","상품코드")+
+						String.format("%10s|", "상품 이름")+
+						String.format("%10s|", "상품 분류")+
+						String.format("%5s|", "상품 가격")+
+						String.format("%8s|", "판매자") +
+						String.format("%5s|", "재고 수량")+
+						String.format("%10s\n", "상세 설명"));
+		this.display("     ------------------------------------------------------------------------------\n");
+
+		for(int index = 0; index<gList.size(); index++) {
+			
+			System.out.print("     " + "|"+index+"|" +String.format("|%6s|",gList.get(index).getGoodsCode()) + 
+								    String.format("%10s|", gList.get(index).getGoodsName()) +
+								    String.format("%10s|", gList.get(index).getGoodsCategory()) +
+								    String.format("%6s|", gList.get(index).getGoodsPrice()) +
+								    String.format("%10s|", gList.get(index).getGoodsSaler()) +
+								    String.format("%6s|", gList.get(index).getGoodsStock()) +
+								    gList.get(index).getGoodsDetails()+"\n");
+		}
+	}
+		
 	
 	private String[] login(String[] accessInfo) {
 		return fc.accessOut(accessInfo);		

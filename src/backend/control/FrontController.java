@@ -1,7 +1,9 @@
 package backend.control;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import backend.bean.GoodsBean;
 import backend.bean.MemberBean;
 import backend.services.*;
 
@@ -26,7 +28,7 @@ public class FrontController {
 	 * @references  Authentication
 	 */
 	public String[] duplicateId(String[] userInfo) {
-		String[] idCheck = new String[1];  // respons로 활용할 배열
+		String[] idCheck = new String[1];  // response로 활용할 배열
 		MemberBean member = new MemberBean();
 		
 		// 클라이언트 요청 처리를 위한 데이터 이동 : DTO : array --> bean
@@ -119,6 +121,22 @@ public class FrontController {
 		auth.backController(-1, member);
 		
 		return null;
+	}
+	
+	//8 상품검색
+	public ArrayList<GoodsBean> searchGoods(HashMap<String, String> map){
+		ArrayList<GoodsBean> gList;
+		GoodsBean goodsInfo = new GoodsBean();;
+		//1. map --> GoodsBeans
+		goodsInfo.setGoodsDetails(map.get("Word"));
+		
+		//2. Goods Class Call :: 1, GoodsBeans
+		gList = goods.backController(1, goodsInfo);
+		
+		//3. ArrayList<GoodsBeans> 리턴 받기
+		//4. ArrayList<GoodsBeans> FrontEnd로 전달
+		
+		return gList;
 	}
 }
 

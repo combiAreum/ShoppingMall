@@ -8,9 +8,10 @@ import backend.bean.MemberBean;
 
 public class Authentication {
 	private DataAccessObject dao;
+	private String fPath;
 	
 	public Authentication() {
-		
+		this.fPath = "C:\\Kimareum\\Java\\Project\\mall201125\\src\\data"; 
 	}
 	
 	public ArrayList<MemberBean> backController(int serviceCode, MemberBean member) {
@@ -27,7 +28,7 @@ public class Authentication {
 			list = this.searchMembersInfo(member);
 			break;
 		case -1 :
-			accessOut(member);
+			this.accessOut(member);
 			break;
 		}
 		return list;
@@ -53,27 +54,20 @@ public class Authentication {
 	 * @param	MemberBean member
 	 * 
 	 */
+	// History Table에서 로그인 상태 여부 확인
+	// :: 해당 계정의 액세스 타입을 숫자로 변환해서 누적합  -> 최종값 : 0 또는 1  <-- DAO
+	// ::: 0인 경우 --> 로그아웃 상태       1--> 로그인상태
+	// 1--> History Table에 로그아웃 기록
+	// 0 --> History Table 작업 필요 X
 	private void accessOut(MemberBean member) {
-
-		dao = new DataAccessObject(7, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
-		int result = dao.accessOutInfo(member);
-		//1. DAO의 함수로부터 특정 유저의 AccessType들을 모두 가져오게 하기
-		//2. 가져온 AcessType들을 모두 더해 0인지 1인지 확인
-		//3-1 
-		//  1이면 member의 AccessType을 -1로 주고 AUTH.writeLogInInfo를 이용해서 로그아웃 기록
-		//4. 0이면 할거 없음
-		
-		if(result == 1) {
-			member.setAccessTime(this.getNow());
+		dao = new DataAccessObject(7, this.fPath);
+		if(dao.isLogOut(member)) {
 			member.setAccessType(-1);
-			// History table 에 로그인 기록 쓰기
-			this.writeLogInInfo(member);
+			member.setAccessTime(this.getNow());
+			dao.writeHistory(member);
 		}
-		else if(result != 0) {
-			System.out.println("accessOut error! ["+result+"]");
-		}
+		
 	}
-	
 	/** 회원유무 확인
 	 *  
 	 * @param    MemberBean member
@@ -87,7 +81,7 @@ public class Authentication {
 	 */
 	private boolean duplicateCheck(MemberBean member) {
 		boolean isCheck = false; // true:: 사용가능   false :: 사용불가능
-		dao = new DataAccessObject(0, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(0, this.fPath);
 				
 		isCheck = dao.duplicateCheck(member);
 		member.setDuplicateCheck(isCheck);
@@ -126,7 +120,7 @@ public class Authentication {
 		int accessTime = -1;
 		//boolean check = true;
 		
-		dao = new DataAccessObject(7, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(7, this.fPath);
 		list = dao.readAccessInfo(member);
 		// list에서 최대값을 갖는 데이터를 추출
 		
@@ -148,7 +142,7 @@ public class Authentication {
 	}
 	
 	private void writeLogInInfo(MemberBean member) {
-		dao = new DataAccessObject(7, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(7, this.fPath);
 		dao.writeHistory(member);
 	}
 	
@@ -164,7 +158,7 @@ public class Authentication {
 	 * @return 	 boolean  :: true - 로그인 성공   false - 로그인 실패 
 	 */
 	private boolean isAccess(MemberBean member) {
-		dao = new DataAccessObject(0, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(0, this.fPath);
 		return dao.isAccess(member);
 	}
 	
@@ -187,7 +181,7 @@ public class Authentication {
 	 *  @return		boolean isCheck
 	 */
 	private boolean regUser(MemberBean member) {
-		dao = new DataAccessObject(0, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(0, this.fPath);
 		
 		// 등록요청 // 등록 여부 리턴
 		
@@ -200,12 +194,12 @@ public class Authentication {
 	 * @return 		MemberBean memberInfo
 	 */
 	private MemberBean searchMemberInfo(MemberBean member) {
-		dao = new DataAccessObject(0, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(0, this.fPath);
 		return dao.searchMemberInfo(member);
 	}	
 	
 	private ArrayList<MemberBean> searchMembersInfo(MemberBean member) {
-		dao = new DataAccessObject(0, "C:\\Kimareum\\Java\\Project\\mall\\src\\data");
+		dao = new DataAccessObject(0, this.fPath);
 		return dao.searchMembersInfo(member);
 	}
 
